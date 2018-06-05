@@ -1,0 +1,104 @@
+﻿@model IPagedList<UseXPagedListMVC.Models.User>
+@using X.PagedList;
+@using X.PagedList.Mvc.Common;
+@using X.PagedList.Mvc;
+
+@using UseXPagedListMVC.Utils;
+
+@{
+    ViewBag.Title = "List";
+}
+
+<h2>@ViewBag.Asd</h2>
+
+@using (Html.BeginForm("List", "Users", FormMethod.Get, new { @class = "form-inline" }))
+{
+    <div class="form-group row">
+        <div class="form-group">
+            <label class="sr-only" for="exampleInputEmail3">Email address</label>
+            <input class="form-control" id="exampleInputEmail3" placeholder="Search..." name="SearchString" value="@ViewBag.SearchString">
+        </div>
+        <button type="submit" class="btn btn-primary">Find</button>
+    </div>
+}
+<br />
+
+<p>На странице: <strong>@Model.Count</strong></p>
+@using (Html.BeginForm("List", "Users", FormMethod.Get, new { @class = "form-inline" }))
+{
+    @*@Html.Hidden("page", (object)@ViewBag.PageNumber)*@
+    @Html.Hidden("sortOrder", (object)@ViewBag.SortOrder)
+    @Html.Hidden("searchString", (object)@ViewBag.SearchString)
+    @Html.DropDownList("pageSize", DefaultValuesForPaging.ItemsPerPageList, new { @id = "pageSize", @class = "form-control", onchange = "this.form.submit();" })
+}
+<br />
+
+<table class="table">
+    <tr>
+        <th>
+            @Html.ActionLink("№", "List", new { page = ViewBag.PageNumber, sortOrder = ViewBag.IDSortParm, searchString = ViewBag.SearchString, pageSize = ViewBag.PageSize })
+        </th>
+        <th>
+            @Html.ActionLink("Name", "List", new { page = ViewBag.PageNumber, sortOrder = ViewBag.NameSortParm, searchString = ViewBag.SearchString, pageSize = ViewBag.PageSize })
+        </th>
+        <th>
+            @Html.ActionLink("SName", "List", new { page = ViewBag.PageNumber, sortOrder = ViewBag.SNameSortParm, searchString = ViewBag.SearchString, pageSize = ViewBag.PageSize })
+        </th>
+        <th>
+            @Html.ActionLink("Age", "List", new { page = ViewBag.PageNumber, sortOrder = ViewBag.AgeSortParm, searchString = ViewBag.SearchString, pageSize = ViewBag.PageSize })
+        </th>
+        <th>
+            @Html.ActionLink("IsStudent", "List", new { page = ViewBag.PageNumber, sortOrder = ViewBag.IsStudentSortParm, searchString = ViewBag.SearchString, pageSize = ViewBag.PageSize })
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.ID)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Age)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IsStudent)
+            </td>
+        </tr>
+    }
+
+</table>
+
+<p>Всего: <strong>@ViewBag.TotalCount</strong></p>
+
+@*@Html.PagedListPager(Model, (page) => Url.Action("List", new { page = page, sortOrder = ViewBag.SortOrder, searchString = ViewBag.SearchString }), PagedListRenderOptions.OnlyShowFivePagesAtATime)*@
+@Html.PagedListPager(
+    Model,
+    (page) => Url.Action(
+        "List",
+        new
+        {
+            page = page,
+            sortOrder = ViewBag.SortOrder,
+            searchString = ViewBag.SearchString,
+            pageSize = ViewBag.PageSize
+
+        }
+    ),
+    new PagedListRenderOptions
+    {
+        //FunctionToDisplayEachPageNumber = page => ((page - 1) * ViewBag.PageNumber + 1).ToString() + "-" + (((page - 1) * ViewBag.PageNumber) + ViewBag.PageNumber).ToString(),
+        MaximumPageNumbersToDisplay = 5,
+        DisplayLinkToNextPage = PagedListDisplayMode.Never,
+        DisplayLinkToPreviousPage = PagedListDisplayMode.Never,
+        LinkToFirstPageFormat = "1",
+        LinkToLastPageFormat = $"{ViewBag.PagesCount}",
+    }
+)
